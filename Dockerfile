@@ -14,6 +14,9 @@ COPY diesel.toml ./
 # Build the application
 RUN cargo build --release
 
+# Install diesel_cli with only postgres feature in the builder stage
+RUN cargo install diesel_cli --no-default-features --features postgres
+
 # Runtime stage
 FROM debian:bookworm-slim
 
@@ -22,13 +25,11 @@ RUN apt-get update && \
     apt-get install -y libpq5 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Install diesel_cli with only postgres feature
-RUN cargo install diesel_cli --no-default-features --features postgres
-
 WORKDIR /app
 
-# Copy the built binary from builder stage
+# Copy the built binary and diesel_cli from builder stage
 COPY --from=builder /app/target/release/shorty .
+COPY --from=builder /usr/local/cargo/bin/diesel /usr/local/bin/diesel
 COPY --from=builder /app/migrations ./migrations
 COPY --from=builder /app/diesel.toml ./
 
