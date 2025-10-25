@@ -22,16 +22,8 @@ RUN apt-get update && \
     apt-get install -y libpq5 ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
-# Install diesel_cli for running migrations
-RUN apt-get update && \
-    apt-get install -y wget && \
-    wget -q https://github.com/diesel-rs/diesel/releases/download/v2.1.0/diesel_cli-v2.1.0-x86_64-unknown-linux-musl.tar.gz && \
-    tar -xzf diesel_cli-v2.1.0-x86_64-unknown-linux-musl.tar.gz && \
-    mv diesel /usr/local/bin/ && \
-    rm diesel_cli-v2.1.0-x86_64-unknown-linux-musl.tar.gz && \
-    apt-get remove -y wget && \
-    apt-get autoremove -y && \
-    rm -rf /var/lib/apt/lists/*
+# Install diesel_cli with only postgres feature
+RUN cargo install diesel_cli --no-default-features --features postgres
 
 WORKDIR /app
 
